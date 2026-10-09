@@ -18,7 +18,7 @@ import {
   useUpdateCourier,
   useDeleteCourier,
 } from "@/hooks/courier.hook";
-import { useGetAllZones } from "@/hooks/zone.hook";
+import { useGetAllZones, useCreateZone } from "@/hooks/zone.hook";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/apiClient";
 import {
@@ -31,6 +31,7 @@ import {
   Phone,
   MapPin,
   Activity,
+  Loader2,
 } from "lucide-react";
 import type { Courier, CourierStatus } from "@/types";
 
@@ -51,16 +52,30 @@ export default function ProviderCouriersPage() {
   const [zoneId, setZoneId] = useState("");
   const [status, setStatus] = useState<CourierStatus>("AVAILABLE");
 
+  // Inline Zone Creation State
+  const [isAddingZoneInline, setIsAddingZoneInline] = useState(false);
+  const [newZoneName, setNewZoneName] = useState("");
+
   // Mutations
   const createMutation = useCreateCourier();
   const updateMutation = useUpdateCourier();
   const deleteMutation = useDeleteCourier();
+  const createZoneMutation = useCreateZone();
+
+  const handleCloseModal = () => {
+    setIsCreateOpen(false);
+    setEditingCourier(null);
+    setIsAddingZoneInline(false);
+    setNewZoneName("");
+  };
 
   const handleOpenCreate = () => {
     setName("");
     setPhone("");
     setZoneId(zones[0]?.id || "");
     setStatus("AVAILABLE");
+    setIsAddingZoneInline(false);
+    setNewZoneName("");
     setIsCreateOpen(true);
   };
 
@@ -70,6 +85,30 @@ export default function ProviderCouriersPage() {
     setPhone(c.phone);
     setZoneId(c.zoneId);
     setStatus(c.status);
+    setIsAddingZoneInline(false);
+    setNewZoneName("");
+  };
+
+  const handleCreateZoneInline = () => {
+    if (!newZoneName.trim() || newZoneName.trim().length < 2) {
+      toast.error("Zone name must be at least 2 characters.");
+      return;
+    }
+
+    createZoneMutation.mutate(
+      { name: newZoneName.trim() },
+      {
+        onSuccess: (res) => {
+          toast.success(`Zone "${res.data.name}" created successfully!`);
+          setZoneId(res.data.id);
+          setNewZoneName("");
+          setIsAddingZoneInline(false);
+        },
+        onError: (err) => {
+          toast.error(getApiErrorMessage(err, "Failed to create zone."));
+        },
+      }
+    );
   };
 
   const handleCreate = (e: React.FormEvent) => {
@@ -260,10 +299,7 @@ export default function ProviderCouriersPage() {
               </h3>
               <button
                 type="button"
-                onClick={() => {
-                  setIsCreateOpen(false);
-                  setEditingCourier(null);
-                }}
+                onClick={handleCloseModal}
                 className="p-1 rounded-md text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4" />
@@ -296,8 +332,56 @@ export default function ProviderCouriersPage() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Operational Zone</Label>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Operational Zone</Label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingZoneInline((prev) => !prev);
+                      setNewZoneName("");
+                    }}
+                    className="text-xs text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                  >
+                    <Plus className="size-3" />
+                    {isAddingZoneInline ? "Cancel" : "Add New Zone"}
+                  </button>
+                </div>
+
+                {isAddingZoneInline && (
+                  <div className="flex items-center gap-2 p-2 rounded-lg border border-primary/20 bg-primary/5">
+                    <Input
+                      value={newZoneName}
+                      onChange={(e) => setNewZoneName(e.target.value)}
+                      placeholder="New zone name (e.g. Uttara)"
+                      className="h-8 text-xs bg-background"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleCreateZoneInline();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={createZoneMutation.isPending || !newZoneName.trim()}
+                      onClick={handleCreateZoneInline}
+                      className="h-8 px-3 text-xs shrink-0 cursor-pointer"
+                    >
+                      {createZoneMutation.isPending ? (
+                        <>
+                          <Loader2 className="size-3 animate-spin mr-1" />
+                          <span>Adding...</span>
+                        </>
+                      ) : (
+                        "Add"
+                      )}
+                    </Button>
+                  </div>
+                )}
+
                 <select
                   value={zoneId}
                   onChange={(e) => setZoneId(e.target.value)}
@@ -313,6 +397,11 @@ export default function ProviderCouriersPage() {
                     </option>
                   ))}
                 </select>
+                {zones.length === 0 && (
+                  <p className="text-[11px] text-muted-foreground">
+                    No zones registered yet. Click &quot;Add New Zone&quot; above to create one.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -339,10 +428,7 @@ export default function ProviderCouriersPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setIsCreateOpen(false);
-                    setEditingCourier(null);
-                  }}
+                  onClick={handleCloseModal}
                   className="cursor-pointer"
                 >
                   Cancel

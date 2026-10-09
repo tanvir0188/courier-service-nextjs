@@ -1,5 +1,5 @@
 import type { SidebarItems } from "@/types";
-import { LayoutDashboard, Package, Bike, CreditCard } from "lucide-react";
+import { LayoutDashboard, Package, Bike, CreditCard, MapPin } from "lucide-react";
 
 const prefix = "/provider";
 
@@ -21,6 +21,11 @@ export const providerRoutes: SidebarItems = [
         title: "Couriers",
         url: `${prefix}/couriers`,
         icon: Bike,
+      },
+      {
+        title: "Delivery Zones",
+        url: `${prefix}/zones`,
+        icon: MapPin,
       },
       {
         title: "Payments",
