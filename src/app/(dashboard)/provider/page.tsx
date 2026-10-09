@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -15,88 +13,69 @@ import {
 import { StatCard } from "@/components/modules/shared/stat-card";
 import { StatusBadge } from "@/components/modules/shared/status-badge";
 import { formatBDT } from "@/lib/utils";
-import { ArrowUpRight } from "lucide-react";
+import {
+  Radio,
+  ArrowUpRight,
+  Package,
+  Bike,
+  Truck,
+  ExternalLink,
+} from "lucide-react";
+import { useGetDashboardStats } from "@/hooks/stats.hook";
+import { useGetAllShipments } from "@/hooks/shipment.hook";
+import { useGetMe } from "@/hooks/auth.hook";
+import { useShipmentSocket } from "@/hooks/socket.hook";
+import type { IProviderDashboardStats } from "@/types";
 
 export default function ProviderDashboardPage() {
-  const [couriers] = useState([
-    { name: "Rakib Hasan", active: 6, status: "busy" },
-    { name: "Sadia Afrin", active: 4, status: "busy" },
-    { name: "Karim Sheikh", active: 2, status: "available" },
-    { name: "Nadia Rahman", active: 0, status: "off" },
-    { name: "Imran Khan", active: 3, status: "available" },
-  ]);
+  const { data: userRes } = useGetMe();
+  const { data: statsRes, isLoading: isStatsLoading } = useGetDashboardStats();
+  const { data: shipmentsRes, isLoading: isShipmentsLoading } = useGetAllShipments({
+    limit: 6,
+  });
 
-  const [shipments] = useState([
-    {
-      id: "DRN-8841",
-      route: "Dhaka → Chattogram",
-      receiver: "Tanvir Alam",
-      courier: "Rakib Hasan",
-      method: "bKash",
-      charge: 620,
-      status: "IN_TRANSIT",
-    },
-    {
-      id: "DRN-8839",
-      route: "Dhaka → Dhaka",
-      receiver: "Farhana Akter",
-      courier: "Sadia Afrin",
-      method: "bKash",
-      charge: 90,
-      status: "OUT_FOR_DELIVERY",
-    },
-    {
-      id: "DRN-8836",
-      route: "Dhaka → Dhaka",
-      receiver: "Nusrat Jahan",
-      courier: "Karim Sheikh",
-      method: "SSLCommerz",
-      charge: 110,
-      status: "DELIVERED",
-    },
-    {
-      id: "DRN-8833",
-      route: "Sylhet → Dhaka",
-      receiver: "Sadia Rahman",
-      courier: "Unassigned",
-      method: "Stripe",
-      charge: 850,
-      status: "PAYMENT_CONFIRMED",
-    },
-    {
-      id: "DRN-8830",
-      route: "Dhaka → Barishal",
-      receiver: "Rafiq Islam",
-      courier: "Nadia Rahman",
-      method: "bKash",
-      charge: 740,
-      status: "DELIVERY_FAILED",
-    },
-    {
-      id: "DRN-8827",
-      route: "Khulna → Dhaka",
-      receiver: "Shirin Sultana",
-      courier: "Imran Khan",
-      method: "SSLCommerz",
-      charge: 680,
-      status: "RETURNED",
-    },
-  ]);
+  const { isConnected } = useShipmentSocket();
+
+  const user = userRes?.data;
+  const providerName = user?.name || "Logistics Hub";
+  const stats = (statsRes?.data || {}) as IProviderDashboardStats;
+  const shipments = shipmentsRes?.data || [];
 
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="text-xs font-mono font-semibold text-primary tracking-wider uppercase mb-1">
-            // LIVE OPERATIONS
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-primary tracking-wider uppercase mb-1">
+            <span>// PROVIDER OPERATIONS HUB</span>
+            {isConnected && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <Radio className="size-3 animate-pulse" /> Live Telemetry
+              </span>
+            )}
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-            Shipment control
+            {providerName}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Track every parcel across Dhaka and Chattogram — from payment confirmation to doorstep delivery.
+            Dispatch fleet management, active courier routing, and zone logistics.
           </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/provider/couriers"
+            className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5" })}
+          >
+            <Bike className="size-4 text-primary" />
+            <span>Manage Couriers</span>
+          </Link>
+          <Link
+            href="/provider/shipments"
+            className={buttonVariants({ size: "sm", className: "gap-1.5 font-semibold" })}
+          >
+            <Truck className="size-4" />
+            <span>Dispatch Center</span>
+          </Link>
         </div>
       </div>
 
@@ -104,139 +83,127 @@ export default function ProviderDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="ACTIVE SHIPMENTS"
-          value="128"
-          trend="▲ 12 since morning"
+          value={isStatsLoading ? "..." : String(stats.activeShipments ?? 0)}
+          trend="In courier network"
         />
         <StatCard
           label="AWAITING COURIER"
-          value="9"
-          actionText="Assign now →"
-          onAction={() => {}}
+          value={isStatsLoading ? "..." : String(stats.awaitingCourier ?? 0)}
+          trend="Payment confirmed, ready"
         />
         <StatCard
           label="OUT FOR DELIVERY"
-          value="19"
-          subtext="2 delayed"
+          value={isStatsLoading ? "..." : String(stats.outForDelivery ?? 0)}
+          trend="Last-mile in transit"
         />
         <StatCard
-          label="TODAY'S REVENUE"
-          value={formatBDT(82400)}
-          subtext="Across 3 methods"
+          label="PROVIDER REVENUE"
+          value={isStatsLoading ? "..." : formatBDT(Number(stats.totalRevenue ?? 0))}
+          trend="Processed online payments"
         />
       </div>
 
-      {/* Split Section: Recent Shipments + Couriers Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Shipments Table */}
-        <div className="lg:col-span-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">Recent shipments</h2>
-            <Link
-              href="/provider/shipments"
-              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
-            >
-              <span>View dispatch</span>
-              <ArrowUpRight className="size-3.5" />
-            </Link>
+      {/* Active Operational Queue */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-foreground">
+              Operational Dispatch Queue
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Shipments requiring courier assignment or status advancement
+            </p>
           </div>
-
-          <div className="rounded-xl border border-border/40 bg-card/60 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border/40 hover:bg-transparent">
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Tracking ID
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Route
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Receiver
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Courier
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Method
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Charge
-                    </TableHead>
-                    <TableHead className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                      Status
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {shipments.map((s) => (
-                    <TableRow
-                      key={s.id}
-                      className="border-border/30 hover:bg-muted/20 transition-colors"
-                    >
-                      <TableCell className="font-mono text-xs font-semibold text-foreground">
-                        {s.id}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {s.route}
-                      </TableCell>
-                      <TableCell className="text-xs font-medium text-foreground">
-                        {s.receiver}
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {s.courier}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono text-muted-foreground">
-                        {s.method}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs font-semibold text-foreground">
-                        {formatBDT(s.charge)}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={s.status} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
+          <Link
+            href="/provider/shipments"
+            className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+          >
+            <span>Open dispatch desk</span>
+            <ArrowUpRight className="size-3.5" />
+          </Link>
         </div>
 
-        {/* Couriers Workload Panel */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">Couriers</h2>
-            <Link
-              href="/provider/couriers"
-              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
-            >
-              <span>Manage fleet</span>
-              <ArrowUpRight className="size-3.5" />
-            </Link>
-          </div>
-
-          <Card className="p-4 border-border/40 bg-card/60 divide-y divide-border/30">
-            {couriers.map((c) => (
-              <div key={c.name} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`size-2 rounded-full ${
-                      c.status === "available"
-                        ? "bg-emerald-400"
-                        : c.status === "busy"
-                        ? "bg-amber-400"
-                        : "bg-muted-foreground"
-                    }`}
-                  />
-                  <span className="text-xs font-medium text-foreground">{c.name}</span>
-                </div>
-                <span className="text-xs font-mono text-muted-foreground">
-                  {c.active} active
-                </span>
-              </div>
-            ))}
-          </Card>
+        <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[140px] text-xs font-mono">TRACKING</TableHead>
+                <TableHead className="text-xs font-mono">CUSTOMER / SENDER</TableHead>
+                <TableHead className="text-xs font-mono">DESTINATION</TableHead>
+                <TableHead className="text-xs font-mono">WEIGHT</TableHead>
+                <TableHead className="text-xs font-mono">STATUS</TableHead>
+                <TableHead className="text-xs font-mono">ASSIGNED COURIER</TableHead>
+                <TableHead className="text-right text-xs font-mono w-[100px]">ACTION</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isShipmentsLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-28 text-center text-muted-foreground text-sm">
+                    Loading dispatch queue...
+                  </TableCell>
+                </TableRow>
+              ) : shipments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-32 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Package className="size-8 text-muted-foreground/50" />
+                      <p className="text-sm font-medium text-muted-foreground">
+                        No active shipments in your queue
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                shipments.map((s) => (
+                  <TableRow key={s.id} className="hover:bg-muted/30">
+                    <TableCell className="font-mono text-xs font-bold text-foreground">
+                      {s.trackingNumber}
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground">
+                      <div>
+                        <div className="font-medium">{s.senderName}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono">{s.senderPhone}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground">
+                      <span className="truncate max-w-[160px] block">
+                        {s.receiverAddress}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-muted-foreground">
+                      {s.weight} kg
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={s.status} />
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground">
+                      {s.deliveryCourier?.name || s.pickupCourier?.name ? (
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          <Bike className="size-3 text-primary" />
+                          {s.deliveryCourier?.name || s.pickupCourier?.name}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground italic text-[11px]">Unassigned</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link
+                        href="/provider/shipments"
+                        className={buttonVariants({
+                          variant: "outline",
+                          size: "sm",
+                          className: "h-7 text-[11px] px-2",
+                        })}
+                      >
+                        Dispatch
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

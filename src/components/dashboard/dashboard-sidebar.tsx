@@ -19,7 +19,6 @@ import type { SidebarItems, UserRole } from "@/types";
 import { LogOut, Radio } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { RoleSwitcher } from "./role-switcher";
 
 const sidebarRoutes: Record<UserRole, SidebarItems> = {
   CUSTOMER: customerRoutes,
@@ -43,10 +42,10 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
   const user = data?.data;
   const activeUser = user
     ? {
-        name: user.name,
-        title: user.role === "ADMIN" ? "Administrator" : user.role === "PROVIDER" ? "Provider" : "Customer",
-        initials: user.name.slice(0, 2).toUpperCase(),
-      }
+      name: user.name,
+      title: user.role === "ADMIN" ? "Administrator" : user.role === "PROVIDER" ? "Provider" : "Customer",
+      initials: user.name.slice(0, 2).toUpperCase(),
+    }
     : defaultUsers[role];
 
   const handleSignOut = () => {
@@ -75,8 +74,7 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
         </Link>
       </SidebarHeader>
 
-      {/* Role Switcher */}
-      <RoleSwitcher currentRole={role} />
+
 
       {/* Navigation Menu */}
       <SidebarContent className="px-2 py-3">
@@ -95,11 +93,10 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
                       <SidebarMenuButton
                         render={<Link href={item.url} />}
                         isActive={isActive}
-                        className={`text-sm font-medium rounded-lg transition-all ${
-                          isActive
+                        className={`text-sm font-medium rounded-lg transition-all ${isActive
                             ? "bg-primary/15 text-primary border-l-2 border-primary font-semibold"
                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                        }`}
+                          }`}
                       >
                         {Icon && <Icon className="size-4" />}
                         <span>{item.title}</span>
