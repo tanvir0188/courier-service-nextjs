@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useVerifyEmail } from "@/hooks/auth.hook";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiClient";
 import { KeyRound } from "lucide-react";
 
 export default function VerifyPage() {
@@ -30,8 +31,8 @@ export default function VerifyPage() {
           toast.success("Email verified successfully!");
           router.push("/customer");
         },
-        onError: () => {
-          toast.error("Invalid or expired OTP");
+        onError: (err) => {
+          toast.error(getApiErrorMessage(err, "Invalid or expired OTP"));
         },
       }
     );

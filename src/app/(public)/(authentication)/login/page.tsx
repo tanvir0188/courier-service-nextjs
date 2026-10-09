@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/hooks/auth.hook";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiClient";
 import { Radio, Lock, Mail, ArrowRight } from "lucide-react";
 import type { UserRole } from "@/types";
 
@@ -31,8 +32,8 @@ export default function LoginPage() {
           else if (userRole === "PROVIDER") router.push("/provider");
           else router.push("/customer");
         },
-        onError: () => {
-          toast.error("Failed to login with backend. Try demo accounts below.");
+        onError: (err) => {
+          toast.error(getApiErrorMessage(err, "Failed to login with backend."));
         },
       }
     );

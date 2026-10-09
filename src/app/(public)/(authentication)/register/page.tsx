@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useRegistration } from "@/hooks/auth.hook";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiClient";
 import { Radio, Lock, Mail, User as UserIcon, Phone } from "lucide-react";
 import type { UserRole } from "@/types";
 
@@ -30,8 +31,8 @@ export default function RegisterPage() {
           toast.success("Account created! Please verify your email.");
           router.push(`/verify?email=${encodeURIComponent(email)}`);
         },
-        onError: () => {
-          toast.error("Registration failed. Please check inputs.");
+        onError: (err) => {
+          toast.error(getApiErrorMessage(err, "Registration failed. Please check inputs."));
         },
       }
     );

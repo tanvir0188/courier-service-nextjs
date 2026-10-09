@@ -11,3 +11,17 @@ export interface ApiResponse<T> {
   data: T;
   meta?: ApiMeta;
 }
+
+export interface ApiErrorResponse {
+  success: false;
+  statusCode: number;
+  name?: string;
+  message: string;
+  error?: {
+    statusCode?: number;
+    [key: string]: unknown;
+  };
+  stack?: string;
+}
+
+export type ApiResult<T> = ApiResponse<T> | ApiErrorResponse;
