@@ -3,14 +3,14 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export function useGetDashboardStats() {
   return useQuery({
-    queryKey: ["stats"],
+    queryKey: ["dashboard-stats"],
     queryFn: getDashboardStats,
   });
 }
 
 export function useSuspenseGetDashboardStats() {
   return useSuspenseQuery({
-    queryKey: ["stats"],
+    queryKey: ["dashboard-stats"],
     queryFn: getDashboardStats,
   });
 }

@@ -33,4 +33,6 @@ export interface Payment {
 
 export interface CreateCheckoutSessionPayload {
   shipmentId: string;
+  successUrl?: string;
+  cancelUrl?: string;
 }

@@ -4,6 +4,7 @@ import type {
   CreateShipmentPayload,
   Shipment,
   ShipmentQueryParams,
+  ShipmentStatus,
 } from "@/types";
 
 export function getAllShipments(params?: ShipmentQueryParams) {
@@ -31,9 +32,26 @@ export function getAvailableCouriersForShipment(id: string) {
   return apiClient<ApiResponse<any[]>>(`/shipment/${id}/available-couriers`);
 }
 
-export function assignCourierToShipment(id: string, payload: { courierId: string; type: "PICKUP" | "DELIVERY" }) {
+export function assignCourierToShipment(
+  id: string,
+  payload: {
+    courierId?: string;
+    pickupCourierId?: string;
+    deliveryCourierId?: string;
+  }
+) {
   return apiClient<ApiResponse<Shipment>>(`/shipment/${id}/assign-courier`, {
     method: "PATCH",
+    body: payload,
+  });
+}
+
+export function simulateStatusUpdate(payload: {
+  shipmentId: string;
+  nextStatus: ShipmentStatus;
+}) {
+  return apiClient<ApiResponse<Shipment>>("/shipment/simulate-status-update", {
+    method: "POST",
     body: payload,
   });
 }

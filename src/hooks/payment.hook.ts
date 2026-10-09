@@ -4,6 +4,7 @@ import {
   getPaymentByShipmentId,
   verifyCheckoutSession,
 } from "@/api/payment.api";
+import type { CreateCheckoutSessionPayload } from "@/types";
 import {
   useMutation,
   useQuery,
@@ -45,7 +46,11 @@ export function useGetPaymentByShipment(shipmentId: string) {
 
 export function useCreateCheckoutSession() {
   return useMutation({
-    mutationFn: (shipmentId: string) => createCheckoutSession({ shipmentId }),
+    mutationFn: (payload: string | CreateCheckoutSessionPayload) => {
+      const body: CreateCheckoutSessionPayload =
+        typeof payload === "string" ? { shipmentId: payload } : payload;
+      return createCheckoutSession(body);
+    },
   });
 }
 
@@ -56,6 +61,7 @@ export function useVerifyCheckoutSession() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
       queryClient.invalidateQueries({ queryKey: ["shipments"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
   });
 }

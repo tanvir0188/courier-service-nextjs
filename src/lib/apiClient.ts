@@ -1,5 +1,6 @@
 import { type FetchError, ofetch } from "ofetch";
 import type { ApiErrorResponse } from "@/types";
+import { getAuthToken, removeAuthCookies } from "./auth-cookies";
 
 export type ApiFetchError = FetchError<ApiErrorResponse>;
 
@@ -22,7 +23,6 @@ export function getApiErrorMessage(
   return fallback;
 }
 
-import { getAuthToken, removeAuthCookies } from "./auth-cookies";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
 

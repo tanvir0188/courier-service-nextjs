@@ -4,9 +4,10 @@ import {
   getAllShipments,
   getAvailableCouriersForShipment,
   getShipmentById,
+  simulateStatusUpdate,
   trackShipment,
 } from "@/api/shipment.api";
-import type { ShipmentQueryParams } from "@/types";
+import type { ShipmentQueryParams, ShipmentStatus } from "@/types";
 import {
   useMutation,
   useQuery,
@@ -50,7 +51,7 @@ export function useCreateShipment() {
     mutationFn: createShipment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shipments"] });
-      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
   });
 }
@@ -61,15 +62,22 @@ export function useAssignCourier() {
     mutationFn: ({
       id,
       courierId,
-      type,
+      pickupCourierId,
+      deliveryCourierId,
     }: {
       id: string;
-      courierId: string;
-      type: "PICKUP" | "DELIVERY";
-    }) => assignCourierToShipment(id, { courierId, type }),
+      courierId?: string;
+      pickupCourierId?: string;
+      deliveryCourierId?: string;
+    }) =>
+      assignCourierToShipment(id, {
+        courierId,
+        pickupCourierId,
+        deliveryCourierId,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shipments"] });
-      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       queryClient.invalidateQueries({ queryKey: ["couriers"] });
     },
   });
@@ -80,5 +88,17 @@ export function useGetAvailableCouriers(shipmentId: string) {
     queryKey: ["available-couriers", shipmentId],
     queryFn: () => getAvailableCouriersForShipment(shipmentId),
     enabled: !!shipmentId,
+  });
+}
+
+export function useSimulateStatusUpdate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { shipmentId: string; nextStatus: ShipmentStatus }) =>
+      simulateStatusUpdate(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shipments"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+    },
   });
 }

@@ -23,6 +23,7 @@ export interface CreateCourierPayload {
   name: string;
   phone: string;
   zoneId: string;
+  status?: CourierStatus;
 }
 
 export interface UpdateCourierPayload {
