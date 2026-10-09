@@ -27,8 +27,8 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# reference mockups & sample template
-admin/
-customer/
-provider/
-PH-Healthcare-Nextjs-part-7/
+# root reference mockups & sample template only
+/admin/
+/customer/
+/provider/
+/PH-Healthcare-Nextjs-part-7/
