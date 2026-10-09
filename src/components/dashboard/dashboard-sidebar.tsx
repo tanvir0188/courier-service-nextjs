@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,12 +14,14 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useGetMe, useLogout } from "@/hooks/auth.hook";
+import { useGetMe } from "@/hooks/auth.hook";
+import { logout } from "@/service/logout";
+import { removeAuthCookies } from "@/lib/auth-cookies";
 import { adminRoutes, customerRoutes, providerRoutes } from "@/routes";
 import type { SidebarItems, UserRole } from "@/types";
-import { LogOut, Radio } from "lucide-react";
+import { Loader2, LogOut, Radio } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const sidebarRoutes: Record<UserRole, SidebarItems> = {
   CUSTOMER: customerRoutes,
@@ -34,10 +37,9 @@ const defaultUsers: Record<UserRole, { name: string; title: string; initials: st
 
 export function DashboardSidebar({ role }: { role: UserRole }) {
   const pathname = usePathname();
-  const router = useRouter();
   const routes: SidebarItems = sidebarRoutes[role] || [];
   const { data } = useGetMe();
-  const logoutMutation = useLogout();
+  const [isLoggingOut, startTransition] = useTransition();
 
   const user = data?.data;
   const activeUser = user
@@ -49,10 +51,9 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
     : defaultUsers[role];
 
   const handleSignOut = () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        router.push("/login");
-      },
+    removeAuthCookies();
+    startTransition(async () => {
+      await logout();
     });
   };
 
@@ -134,10 +135,15 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
           <button
             type="button"
             onClick={handleSignOut}
+            disabled={isLoggingOut}
             title="Sign out"
-            className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+            className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0 cursor-pointer disabled:opacity-50"
           >
-            <LogOut className="size-3.5" />
+            {isLoggingOut ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <LogOut className="size-3.5" />
+            )}
           </button>
         </div>
       </SidebarFooter>

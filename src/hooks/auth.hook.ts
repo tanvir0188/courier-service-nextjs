@@ -9,6 +9,7 @@ import {
   verifyEmail,
 } from "@/api";
 import { setAuthCookies } from "@/lib/auth-cookies";
+import { logout } from "@/service/logout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useLogin() {
@@ -85,6 +86,7 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       userLogout();
+      await logout();
     },
     onSuccess: () => {
       queryClient.setQueryData(["user"], null);
