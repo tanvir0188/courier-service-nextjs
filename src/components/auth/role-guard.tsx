@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetMe } from "@/hooks/auth.hook";
+import { getAuthRole, getAuthToken } from "@/lib/auth-cookies";
 import type { UserRole } from "@/types";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
@@ -17,15 +18,15 @@ export default function RoleGuard({ children, roles }: RoleGuardProps) {
   const { data, isPending, isError } = useGetMe();
 
   const user = data?.data;
-  const storedRole = typeof window !== "undefined" ? (localStorage.getItem("user_role") as UserRole | null) : null;
-  const effectiveRole = user?.role || storedRole;
+  const cookieRole = typeof window !== "undefined" ? getAuthRole() : null;
+  const effectiveRole = user?.role || cookieRole;
 
   const isAuthorized = !!effectiveRole && roles.includes(effectiveRole);
 
   useEffect(() => {
     if (isPending) return;
 
-    const hasToken = typeof window !== "undefined" && !!localStorage.getItem("access_token");
+    const hasToken = typeof window !== "undefined" && !!getAuthToken();
 
     if (!hasToken && (isError || !user)) {
       router.replace("/login");
@@ -36,7 +37,7 @@ export default function RoleGuard({ children, roles }: RoleGuardProps) {
     return <AuthLoading />;
   }
 
-  const hasToken = typeof window !== "undefined" && !!localStorage.getItem("access_token");
+  const hasToken = typeof window !== "undefined" && !!getAuthToken();
   if (!hasToken && (isError || !user)) {
     return <AuthLoading label="Redirecting..." />;
   }

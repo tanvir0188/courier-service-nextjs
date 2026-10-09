@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetMe } from "@/hooks/auth.hook";
+import { getAuthToken } from "@/lib/auth-cookies";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 import AuthLoading from "./auth-loading";
@@ -14,8 +15,8 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isPending) return;
 
-    // Check if demo token or real session exists
-    const hasToken = typeof window !== "undefined" && !!localStorage.getItem("access_token");
+    // Check if cookie session or active user exists
+    const hasToken = typeof window !== "undefined" && !!getAuthToken();
 
     if (!hasToken && (isError || !user)) {
       router.replace("/login");
@@ -26,7 +27,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
     return <AuthLoading />;
   }
 
-  const hasToken = typeof window !== "undefined" && !!localStorage.getItem("access_token");
+  const hasToken = typeof window !== "undefined" && !!getAuthToken();
   if (!hasToken && (isError || !user)) {
     return <AuthLoading label="Redirecting to login..." />;
   }

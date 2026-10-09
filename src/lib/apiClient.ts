@@ -22,6 +22,8 @@ export function getApiErrorMessage(
   return fallback;
 }
 
+import { getAuthToken, removeAuthCookies } from "./auth-cookies";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1";
 
 const apiClient = ofetch.create({
@@ -29,7 +31,7 @@ const apiClient = ofetch.create({
   credentials: "include",
   onRequest({ options }) {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
+      const token = getAuthToken();
       if (token) {
         const headers = new Headers(options.headers);
         headers.set("Authorization", `Bearer ${token}`);
@@ -48,7 +50,7 @@ const apiClient = ofetch.create({
     if (response.status === 401 && typeof window !== "undefined") {
       const pathname = window.location.pathname;
       if (!pathname.startsWith("/login") && !pathname.startsWith("/register") && !pathname.startsWith("/track")) {
-        localStorage.removeItem("access_token");
+        removeAuthCookies();
       }
     }
   },

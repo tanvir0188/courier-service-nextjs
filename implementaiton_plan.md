@@ -434,7 +434,7 @@ const apiClient = ofetch.create({
   onRequest({ options }) {
     // Optional Bearer token fallback if cookies are not utilized
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
+      const token = getAuthToken();
       if (token) {
         options.headers = {
           ...options.headers,

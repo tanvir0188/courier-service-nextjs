@@ -8,6 +8,7 @@ import {
   userRegistration,
   verifyEmail,
 } from "@/api";
+import { setAuthCookies } from "@/lib/auth-cookies";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useLogin() {
@@ -16,7 +17,11 @@ export function useLogin() {
     mutationFn: userLogin,
     onSuccess: (res) => {
       if (res?.data?.accessToken) {
-        localStorage.setItem("access_token", res.data.accessToken);
+        setAuthCookies(
+          res.data.accessToken,
+          undefined,
+          res.data.user?.role
+        );
       }
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
@@ -35,7 +40,11 @@ export function useVerifyEmail() {
     mutationFn: verifyEmail,
     onSuccess: (res) => {
       if (res?.data?.accessToken) {
-        localStorage.setItem("access_token", res.data.accessToken);
+        setAuthCookies(
+          res.data.accessToken,
+          undefined,
+          res.data.user?.role
+        );
       }
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
@@ -48,7 +57,11 @@ export function useGoogleOAuth() {
     mutationFn: googleOAuth,
     onSuccess: (res) => {
       if (res?.data?.accessToken) {
-        localStorage.setItem("access_token", res.data.accessToken);
+        setAuthCookies(
+          res.data.accessToken,
+          undefined,
+          res.data.user?.role
+        );
       }
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },

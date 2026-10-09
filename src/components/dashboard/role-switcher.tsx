@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import type { UserRole } from "@/types";
+import { getAuthToken, setAuthCookies } from "@/lib/auth-cookies";
 
 interface RoleSwitcherProps {
   currentRole: UserRole;
@@ -13,11 +14,8 @@ export function RoleSwitcher({ currentRole }: RoleSwitcherProps) {
 
   const handleSwitch = (role: UserRole) => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("user_role", role);
-      // Ensure dummy token for demo browsing if needed
-      if (!localStorage.getItem("access_token")) {
-        localStorage.setItem("access_token", "demo_jwt_token");
-      }
+      const existingToken = getAuthToken() || `demo_${role.toLowerCase()}_token`;
+      setAuthCookies(existingToken, undefined, role);
     }
 
     if (role === "CUSTOMER") router.push("/customer");

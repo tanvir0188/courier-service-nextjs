@@ -1,4 +1,5 @@
 import apiClient from "@/lib/apiClient";
+import { removeAuthCookies } from "@/lib/auth-cookies";
 import type {
   ApiResponse,
   LoginPayload,
@@ -55,7 +56,7 @@ export function resetPassword(payload: { email: string; otp: string; newPassword
 
 export function userLogout() {
   if (typeof window !== "undefined") {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_role");
+    removeAuthCookies();
   }
 }
+

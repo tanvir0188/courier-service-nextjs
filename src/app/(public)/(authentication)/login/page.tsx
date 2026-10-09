@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,14 +10,20 @@ import { Label } from "@/components/ui/label";
 import { useLogin } from "@/hooks/auth.hook";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/apiClient";
-import { Radio, Lock, Mail, ArrowRight } from "lucide-react";
+import { setAuthCookies } from "@/lib/auth-cookies";
+import { fastLoginDemoAction } from "../_actions/authActions";
+import { Radio, Lock, Mail, ShieldCheck, Truck, User } from "lucide-react";
 import type { UserRole } from "@/types";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "";
+
   const loginMutation = useLogin();
+  const [isFastLoginPending, startFastLogin] = useTransition();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +32,20 @@ export default function LoginPage() {
       {
         onSuccess: (res) => {
           toast.success("Welcome back!");
-          const userRole = res.data?.user?.role || "CUSTOMER";
-          localStorage.setItem("user_role", userRole);
-          if (userRole === "ADMIN") router.push("/admin");
-          else if (userRole === "PROVIDER") router.push("/provider");
-          else router.push("/customer");
+          const userRole = (res.data?.user?.role || "CUSTOMER") as UserRole;
+          const token = res.data?.accessToken || res.data?.token || "";
+          
+          setAuthCookies(token, undefined, userRole);
+
+          if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+            router.push(redirectTo);
+          } else if (userRole === "ADMIN") {
+            router.push("/admin");
+          } else if (userRole === "PROVIDER") {
+            router.push("/provider");
+          } else {
+            router.push("/customer");
+          }
         },
         onError: (err) => {
           toast.error(getApiErrorMessage(err, "Failed to login with backend."));
@@ -39,14 +54,20 @@ export default function LoginPage() {
     );
   };
 
-  const handleDemoLogin = (role: UserRole) => {
-    localStorage.setItem("access_token", `demo_${role.toLowerCase()}_token`);
-    localStorage.setItem("user_role", role);
-    toast.success(`Logged in as ${role}`);
-    if (role === "ADMIN") router.push("/admin");
-    else if (role === "PROVIDER") router.push("/provider");
-    else router.push("/customer");
+  const handleFastLogin = (role: "customer" | "provider" | "admin") => {
+    startFastLogin(async () => {
+      try {
+        const result = await fastLoginDemoAction(role, redirectTo);
+        if (result && !result.success) {
+          toast.error(result.message || "Fast demo login failed");
+        }
+      } catch (err) {
+        // Handled via redirect inside server action
+      }
+    });
   };
+
+  const isPending = loginMutation.isPending || isFastLoginPending;
 
   return (
     <Card className="p-6 sm:p-8 border-border/40 bg-card/70 backdrop-blur-md shadow-2xl">
@@ -56,7 +77,7 @@ export default function LoginPage() {
         </div>
         <h1 className="text-2xl font-bold tracking-tight">Sign in to DRONET</h1>
         <p className="text-xs text-muted-foreground">
-          Enter your credentials or use quick demo profiles
+          Cookie-authenticated session with Role-Based Access Control
         </p>
       </div>
 
@@ -71,6 +92,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@dronet.io"
               className="pl-9 text-sm"
+              disabled={isPending}
               required
             />
           </div>
@@ -88,6 +110,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="pl-9 text-sm"
+              disabled={isPending}
               required
             />
           </div>
@@ -95,44 +118,50 @@ export default function LoginPage() {
 
         <Button
           type="submit"
-          className="w-full font-semibold"
-          disabled={loginMutation.isPending}
+          className="w-full font-semibold cursor-pointer"
+          disabled={isPending}
         >
           {loginMutation.isPending ? "Authenticating..." : "Sign in"}
         </Button>
       </form>
 
-      {/* Demo Portals */}
+      {/* Fast Demo Portals with Server Action Cookies */}
       <div className="mt-6 pt-6 border-t border-border/40 text-center">
         <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-3">
-          Quick Demo Bypass
+          One-Click Demo Portals (RBAC Cookies)
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("CUSTOMER")}
-            className="text-xs"
+            onClick={() => handleFastLogin("customer")}
+            disabled={isPending}
+            className="text-xs flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/50"
           >
+            <User className="size-3.5 text-sky-400" />
             Customer
           </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("PROVIDER")}
-            className="text-xs"
+            onClick={() => handleFastLogin("provider")}
+            disabled={isPending}
+            className="text-xs flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/50"
           >
+            <Truck className="size-3.5 text-amber-400" />
             Provider
           </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleDemoLogin("ADMIN")}
-            className="text-xs"
+            onClick={() => handleFastLogin("admin")}
+            disabled={isPending}
+            className="text-xs flex items-center justify-center gap-1.5 cursor-pointer hover:border-primary/50"
           >
+            <ShieldCheck className="size-3.5 text-emerald-400" />
             Admin
           </Button>
         </div>
