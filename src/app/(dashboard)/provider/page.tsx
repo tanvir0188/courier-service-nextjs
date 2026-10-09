@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -15,7 +15,7 @@ import {
 import { StatCard } from "@/components/modules/shared/stat-card";
 import { StatusBadge } from "@/components/modules/shared/status-badge";
 import { formatBDT } from "@/lib/utils";
-import { ArrowUpRight, Bike, ShieldCheck } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 export default function ProviderDashboardPage() {
   const [couriers] = useState([
@@ -131,12 +131,13 @@ export default function ProviderDashboardPage() {
         <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Recent shipments</h2>
-            <Button asChild variant="ghost" size="sm" className="text-xs text-primary">
-              <Link href="/provider/shipments" className="flex items-center gap-1">
-                <span>View dispatch</span>
-                <ArrowUpRight className="size-3.5" />
-              </Link>
-            </Button>
+            <Link
+              href="/provider/shipments"
+              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
+            >
+              <span>View dispatch</span>
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
           <div className="rounded-xl border border-border/40 bg-card/60 overflow-hidden shadow-sm">
@@ -206,12 +207,13 @@ export default function ProviderDashboardPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Couriers</h2>
-            <Button asChild variant="ghost" size="sm" className="text-xs text-primary">
-              <Link href="/provider/couriers" className="flex items-center gap-1">
-                <span>Manage fleet</span>
-                <ArrowUpRight className="size-3.5" />
-              </Link>
-            </Button>
+            <Link
+              href="/provider/couriers"
+              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
+            >
+              <span>Manage fleet</span>
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
           <Card className="p-4 border-border/40 bg-card/60 divide-y divide-border/30">

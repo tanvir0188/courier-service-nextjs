@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -81,12 +80,13 @@ export default function CustomerDashboardPage() {
             Track parcels you've sent and received across Bangladesh.
           </p>
         </div>
-        <Button asChild className="font-semibold shadow-md shrink-0">
-          <Link href="/customer/new" className="flex items-center gap-1.5">
-            <Plus className="size-4" />
-            <span>Create shipment</span>
-          </Link>
-        </Button>
+        <Link
+          href="/customer/new"
+          className={buttonVariants({ className: "font-semibold shadow-md shrink-0 gap-1.5" })}
+        >
+          <Plus className="size-4" />
+          <span>Create shipment</span>
+        </Link>
       </div>
 
       {/* KPI Stats Grid */}
@@ -117,12 +117,13 @@ export default function CustomerDashboardPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground">Recent shipments</h2>
-          <Button asChild variant="ghost" size="sm" className="text-xs text-primary">
-            <Link href="/customer/shipments" className="flex items-center gap-1">
-              <span>View all</span>
-              <ArrowUpRight className="size-3.5" />
-            </Link>
-          </Button>
+          <Link
+            href="/customer/shipments"
+            className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
+          >
+            <span>View all</span>
+            <ArrowUpRight className="size-3.5" />
+          </Link>
         </div>
 
         <div className="rounded-xl border border-border/40 bg-card/60 overflow-hidden shadow-sm">

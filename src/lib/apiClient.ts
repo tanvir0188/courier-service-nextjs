@@ -9,19 +9,16 @@ const apiClient = ofetch.create({
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("access_token");
       if (token) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${token}`,
-        };
+        const headers = new Headers(options.headers);
+        headers.set("Authorization", `Bearer ${token}`);
+        options.headers = headers;
       }
     }
   },
   onResponseError({ response }) {
     if (response.status === 401 && typeof window !== "undefined") {
-      // Don't auto-redirect if already on auth pages
       const pathname = window.location.pathname;
       if (!pathname.startsWith("/login") && !pathname.startsWith("/register") && !pathname.startsWith("/track")) {
-        // Clear expired credentials
         localStorage.removeItem("access_token");
       }
     }

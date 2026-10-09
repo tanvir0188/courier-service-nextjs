@@ -93,7 +93,7 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
-                        asChild
+                        render={<Link href={item.url} />}
                         isActive={isActive}
                         className={`text-sm font-medium rounded-lg transition-all ${
                           isActive
@@ -101,15 +101,13 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                         }`}
                       >
-                        <Link href={item.url} className="flex items-center gap-2.5">
-                          {Icon && <Icon className="size-4" />}
-                          <span>{item.title}</span>
-                          {item.badge && (
-                            <span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-mono">
-                              {item.badge}
-                            </span>
-                          )}
-                        </Link>
+                        {Icon && <Icon className="size-4" />}
+                        <span>{item.title}</span>
+                        {item.badge && (
+                          <span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-mono">
+                            {item.badge}
+                          </span>
+                        )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

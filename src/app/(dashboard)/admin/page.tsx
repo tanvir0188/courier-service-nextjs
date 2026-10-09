@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -144,12 +144,13 @@ export default function AdminDashboardPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Latest shipments</h2>
-            <Button asChild variant="ghost" size="sm" className="text-xs text-primary">
-              <Link href="/admin/shipments" className="flex items-center gap-1">
-                <span>View all</span>
-                <ArrowUpRight className="size-3.5" />
-              </Link>
-            </Button>
+            <Link
+              href="/admin/shipments"
+              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
+            >
+              <span>View all</span>
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
           <div className="rounded-xl border border-border/40 bg-card/60 overflow-hidden shadow-sm">
@@ -207,12 +208,13 @@ export default function AdminDashboardPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground">Latest payments</h2>
-            <Button asChild variant="ghost" size="sm" className="text-xs text-primary">
-              <Link href="/admin/payments" className="flex items-center gap-1">
-                <span>View all</span>
-                <ArrowUpRight className="size-3.5" />
-              </Link>
-            </Button>
+            <Link
+              href="/admin/payments"
+              className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs text-primary gap-1" })}
+            >
+              <span>View all</span>
+              <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
 
           <div className="rounded-xl border border-border/40 bg-card/60 overflow-hidden shadow-sm">

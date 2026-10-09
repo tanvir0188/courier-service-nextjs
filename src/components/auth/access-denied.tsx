@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
@@ -17,12 +17,12 @@ export default function AccessDenied() {
         </p>
       </div>
       <div className="flex gap-3 pt-2">
-        <Button asChild variant="outline">
-          <Link href="/">Back to Home</Link>
-        </Button>
-        <Button asChild>
-          <Link href="/login">Switch Account</Link>
-        </Button>
+        <Link href="/" className={buttonVariants({ variant: "outline" })}>
+          Back to Home
+        </Link>
+        <Link href="/login" className={buttonVariants()}>
+          Switch Account
+        </Link>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Radio } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,12 +16,18 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <span className="text-lg font-black tracking-wider text-foreground">DRONET</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/login">Sign in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/register">Get Started</Link>
-            </Button>
+            <Link
+              href="/login"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className={buttonVariants({ size: "sm" })}
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </header>
