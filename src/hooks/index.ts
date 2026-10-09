@@ -7,3 +7,4 @@ export * from "./payment.hook";
 export * from "./stats.hook";
 export * from "./user.hook";
 export * from "./zone.hook";
+export * from "./socket.hook";
