@@ -62,7 +62,7 @@ export const isAccessTokenExist = async () => {
       const newAccessToken = result.data.accessToken;
 
       cookieStore.set("accessToken", newAccessToken, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 60 * 60 * 24,
         sameSite: "lax",
         path: "/",

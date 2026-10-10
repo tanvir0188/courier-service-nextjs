@@ -12,17 +12,28 @@ export const getMe = cache(async () => {
     return { success: false, message: "User not logged in!" };
   }
 
+  // Handle demo fallback sessions
+  if (accessToken.startsWith("demo_")) {
+    const cookieRole = cookieStore.get("user_role")?.value || "CUSTOMER";
+    return {
+      success: true,
+      data: {
+        id: "demo-user-id",
+        name: `${cookieRole} Demo User`,
+        email: `${cookieRole.toLowerCase()}@dronet.io`,
+        role: cookieRole,
+        phone: "+8801700000000",
+      },
+    };
+  }
+
   try {
     const res = await fetch(`${config.base_url}/auth/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Cookie: `accessToken=${accessToken}`,
       },
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 24,
-        tags: ["my-profile"],
-      },
+      cache: "no-store",
     });
 
     const data = await res.json().catch(() => ({ success: false }));

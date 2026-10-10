@@ -76,10 +76,10 @@ export const loginAction = async (
 
     const cookieStore = await cookies();
 
-    // Set HTTP session cookies matching rent-nest-frontend
+    // Set session cookies accessible to both server and client apiClient / RBAC
     if (token) {
       cookieStore.set("accessToken", token, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 60 * 60 * 24, // 1 day
         sameSite: "lax",
         path: "/",
@@ -88,7 +88,7 @@ export const loginAction = async (
 
     if (refreshToken) {
       cookieStore.set("refreshToken", refreshToken, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 60 * 60 * 24 * 7, // 7 days
         sameSite: "lax",
         path: "/",
@@ -102,7 +102,7 @@ export const loginAction = async (
       path: "/",
     });
 
-    revalidateTag("my-profile", "max");
+    revalidateTag("my-profile");
 
     if (
       redirectTo &&
@@ -147,8 +147,8 @@ export const fastLoginDemoAction = async (
     email = process.env.TESTER_PROVIDER_EMAIL || "testerprovider@gmail.com";
     password = process.env.TESTER_PROVIDER_PASSWORD || "Tester@provider12345";
   } else {
-    email = "customer@dronet.io";
-    password = "Customer@12345";
+    email = "arnob0188@gmail.com";
+    password = "Arn@b0188";
   }
 
   // First try backend credentials login
@@ -165,7 +165,7 @@ export const fastLoginDemoAction = async (
 
     const dummyToken = `demo_${role}_token`;
     cookieStore.set("accessToken", dummyToken, {
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 60 * 60 * 24,
       sameSite: "lax",
       path: "/",
@@ -181,10 +181,10 @@ export const fastLoginDemoAction = async (
       redirectTo && redirectTo.startsWith("/")
         ? redirectTo
         : role === "admin"
-        ? "/admin"
-        : role === "provider"
-        ? "/provider"
-        : "/customer";
+          ? "/admin"
+          : role === "provider"
+            ? "/provider"
+            : "/customer";
 
     redirect(target);
   }

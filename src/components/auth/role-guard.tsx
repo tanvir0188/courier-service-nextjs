@@ -26,9 +26,10 @@ export default function RoleGuard({ children, roles }: RoleGuardProps) {
   useEffect(() => {
     if (isPending) return;
 
-    const hasToken = typeof window !== "undefined" && !!getAuthToken();
+    const hasSession =
+      typeof window !== "undefined" && (!!getAuthToken() || !!getAuthRole());
 
-    if (!hasToken && (isError || !user)) {
+    if (!hasSession && (isError || !user)) {
       router.replace("/login");
     }
   }, [isPending, isError, user, router]);
@@ -37,8 +38,9 @@ export default function RoleGuard({ children, roles }: RoleGuardProps) {
     return <AuthLoading />;
   }
 
-  const hasToken = typeof window !== "undefined" && !!getAuthToken();
-  if (!hasToken && (isError || !user)) {
+  const hasSession =
+    typeof window !== "undefined" && (!!getAuthToken() || !!getAuthRole());
+  if (!hasSession && (isError || !user)) {
     return <AuthLoading label="Redirecting..." />;
   }
 

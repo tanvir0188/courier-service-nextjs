@@ -8,7 +8,7 @@ import {
   userRegistration,
   verifyEmail,
 } from "@/api";
-import { setAuthCookies } from "@/lib/auth-cookies";
+import { getAuthRole, getAuthToken, setAuthCookies } from "@/lib/auth-cookies";
 import { logout } from "@/service/logout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -98,7 +98,23 @@ export function useLogout() {
 export function useGetMe() {
   return useQuery({
     queryKey: ["user"],
-    queryFn: getMe,
+    queryFn: async () => {
+      const token = typeof window !== "undefined" ? getAuthToken() : undefined;
+      if (token?.startsWith("demo_")) {
+        const role = getAuthRole() || "CUSTOMER";
+        return {
+          success: true,
+          data: {
+            id: "demo-user-id",
+            name: `${role} Demo User`,
+            email: `${role.toLowerCase()}@dronet.io`,
+            role,
+            phone: "+8801700000000",
+          },
+        };
+      }
+      return getMe();
+    },
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

@@ -11,6 +11,6 @@ export const logout = async () => {
   cookieStore.delete("refreshToken");
   cookieStore.delete("user_role");
 
-  revalidateTag("my-profile", "max");
+  revalidateTag("my-profile");
   redirect("/login");
 };

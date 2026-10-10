@@ -15,7 +15,7 @@ export default function HomePage() {
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
     if (trackingId.trim()) {
-      router.push(`/track/${trackingId.trim().toUpperCase()}`);
+      router.push(`/tracking?number=${encodeURIComponent(trackingId.trim().toUpperCase())}`);
     }
   };
 
@@ -45,7 +45,7 @@ export default function HomePage() {
           <Input
             value={trackingId}
             onChange={(e) => setTrackingId(e.target.value)}
-            placeholder="Enter tracking ID (e.g. DRN-8841)"
+            placeholder="Enter tracking ID (e.g. TRK-MV1XOQPW-OYDEI)"
             className="border-0 bg-transparent pl-9 text-sm focus-visible:ring-0 shadow-none font-mono"
           />
         </div>

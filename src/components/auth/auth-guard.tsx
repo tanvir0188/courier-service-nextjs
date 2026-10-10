@@ -1,7 +1,7 @@
 "use client";
 
 import { useGetMe } from "@/hooks/auth.hook";
-import { getAuthToken } from "@/lib/auth-cookies";
+import { getAuthRole, getAuthToken } from "@/lib/auth-cookies";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 import AuthLoading from "./auth-loading";
@@ -15,10 +15,11 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isPending) return;
 
-    // Check if cookie session or active user exists
-    const hasToken = typeof window !== "undefined" && !!getAuthToken();
+    // Check if active cookie session exists
+    const hasSession =
+      typeof window !== "undefined" && (!!getAuthToken() || !!getAuthRole());
 
-    if (!hasToken && (isError || !user)) {
+    if (!hasSession && (isError || !user)) {
       router.replace("/login");
     }
   }, [isPending, isError, user, router]);
@@ -27,8 +28,9 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
     return <AuthLoading />;
   }
 
-  const hasToken = typeof window !== "undefined" && !!getAuthToken();
-  if (!hasToken && (isError || !user)) {
+  const hasSession =
+    typeof window !== "undefined" && (!!getAuthToken() || !!getAuthRole());
+  if (!hasSession && (isError || !user)) {
     return <AuthLoading label="Redirecting to login..." />;
   }
 
