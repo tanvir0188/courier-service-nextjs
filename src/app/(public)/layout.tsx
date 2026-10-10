@@ -20,14 +20,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
               <Link href="/" className="hover:text-foreground transition-colors">
                 Home
               </Link>
-              <Link href="/services" className="hover:text-foreground transition-colors">
-                Services
-              </Link>
               <Link href="/tracking" className="hover:text-foreground transition-colors">
                 Live Tracking
-              </Link>
-              <Link href="/pricing" className="hover:text-foreground transition-colors">
-                Pricing
               </Link>
             </nav>
           </div>
