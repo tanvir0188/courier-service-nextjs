@@ -23,7 +23,7 @@ export const getSocket = (): Socket => {
   if (!socket) {
     const socketUrl = config.socket_url || "http://localhost:8787";
     socket = io(socketUrl, {
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"],
       withCredentials: true,
       autoConnect: true,
       reconnection: true,

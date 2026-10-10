@@ -1,6 +1,7 @@
 import apiClient from "@/lib/apiClient";
 import type {
   ApiResponse,
+  CheckoutSessionData,
   CreateCheckoutSessionPayload,
   Payment,
 } from "@/types";
@@ -21,7 +22,7 @@ export function getPaymentByShipmentId(shipmentId: string) {
 }
 
 export function createCheckoutSession(payload: CreateCheckoutSessionPayload) {
-  return apiClient<ApiResponse<{ url: string; sessionId: string }>>("/payment/create-checkout-session", {
+  return apiClient<ApiResponse<CheckoutSessionData>>("/payment/create-checkout-session", {
     method: "POST",
     body: payload,
   });

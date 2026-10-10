@@ -36,3 +36,10 @@ export interface CreateCheckoutSessionPayload {
   successUrl?: string;
   cancelUrl?: string;
 }
+
+export interface CheckoutSessionData {
+  paymentId?: string;
+  sessionId: string;
+  paymentUrl: string;
+  url?: string;
+}

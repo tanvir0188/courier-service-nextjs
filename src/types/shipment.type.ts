@@ -97,3 +97,31 @@ export interface ShipmentQueryParams {
   senderZoneId?: string;
   receiverZoneId?: string;
 }
+
+export interface AvailableCourierItem {
+  id: string;
+  name: string;
+  phone: string;
+  status: string;
+  zoneId: string;
+  zoneName?: string;
+  activeShipmentsCount?: number;
+}
+
+export interface AvailableCouriersResponse {
+  shipmentId: string;
+  trackingNumber: string;
+  isIntraZone: boolean;
+  senderZone: {
+    id: string;
+    name: string;
+  };
+  receiverZone: {
+    id: string;
+    name: string;
+  };
+  currentPickupCourierId?: string | null;
+  currentDeliveryCourierId?: string | null;
+  pickupCouriers: AvailableCourierItem[];
+  deliveryCouriers: AvailableCourierItem[];
+}

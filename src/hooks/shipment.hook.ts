@@ -38,10 +38,11 @@ export function useGetShipmentById(id: string) {
 }
 
 export function useTrackShipment(trackingNumber: string) {
+  const cleanNumber = trackingNumber ? trackingNumber.trim().toUpperCase() : "";
   return useQuery({
-    queryKey: ["track", trackingNumber],
-    queryFn: () => trackShipment(trackingNumber),
-    enabled: !!trackingNumber,
+    queryKey: ["track", cleanNumber],
+    queryFn: () => trackShipment(cleanNumber),
+    enabled: !!cleanNumber,
   });
 }
 

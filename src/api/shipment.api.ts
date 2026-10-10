@@ -1,6 +1,8 @@
 import apiClient from "@/lib/apiClient";
 import type {
   ApiResponse,
+  AvailableCourierItem,
+  AvailableCouriersResponse,
   CreateShipmentPayload,
   Shipment,
   ShipmentQueryParams,
@@ -29,7 +31,9 @@ export function createShipment(payload: CreateShipmentPayload) {
 }
 
 export function getAvailableCouriersForShipment(id: string) {
-  return apiClient<ApiResponse<any[]>>(`/shipment/${id}/available-couriers`);
+  return apiClient<ApiResponse<AvailableCouriersResponse | AvailableCourierItem[]>>(
+    `/shipment/${id}/available-couriers`
+  );
 }
 
 export function assignCourierToShipment(

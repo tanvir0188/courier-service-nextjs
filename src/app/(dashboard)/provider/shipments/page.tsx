@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -56,7 +56,22 @@ export default function ProviderShipmentsPage() {
   const simulateStatusMutation = useSimulateStatusUpdate();
 
   const shipments = shipmentsRes?.data || [];
-  const availableCouriers = availableCouriersRes?.data || [];
+  const availableCouriers = useMemo(() => {
+    const rawData = availableCouriersRes?.data as any;
+    if (!rawData) return [];
+    if (Array.isArray(rawData)) return rawData;
+
+    const list = [
+      ...(rawData.pickupCouriers || []),
+      ...(rawData.deliveryCouriers || []),
+    ];
+    const seen = new Set<string>();
+    return list.filter((c: any) => {
+      if (!c?.id || seen.has(c.id)) return false;
+      seen.add(c.id);
+      return true;
+    });
+  }, [availableCouriersRes?.data]);
 
   const handleAssignCourier = () => {
     if (!assignModalShipment || !selectedCourierId) {
@@ -336,7 +351,7 @@ export default function ProviderShipmentsPage() {
                   </option>
                   {availableCouriers.map((c: any) => (
                     <option key={c.id} value={c.id} className="bg-background text-foreground">
-                      {c.name} ({c.phone}) - {c.status}
+                      {c.name} ({c.phone}) - {c.zoneName ? `${c.zoneName} · ` : ""}{c.status}
                     </option>
                   ))}
                 </select>

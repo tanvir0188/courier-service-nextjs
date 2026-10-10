@@ -122,8 +122,9 @@ export default function CreateShipmentPage() {
       },
       {
         onSuccess: (res) => {
-          if (res?.data?.url) {
-            window.location.href = res.data.url;
+          const checkoutUrl = res?.data?.paymentUrl || res?.data?.url;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
           } else {
             toast.error("No checkout URL returned from payment server");
           }

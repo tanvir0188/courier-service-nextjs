@@ -52,8 +52,9 @@ export default function CustomerShipmentsPage() {
       },
       {
         onSuccess: (res) => {
-          if (res?.data?.url) {
-            window.location.href = res.data.url;
+          const checkoutUrl = res?.data?.paymentUrl || res?.data?.url;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
           } else {
             toast.error("Unable to generate Stripe checkout URL");
           }

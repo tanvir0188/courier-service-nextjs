@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -61,9 +61,43 @@ export default function TrackingPage() {
     }
   };
 
-  const currentStepIndex = shipment
-    ? STATUS_STEPS.indexOf(shipment.status)
+  const activeStatus: ShipmentStatus | undefined =
+    latestEvent &&
+    activeNumber &&
+    latestEvent.trackingNumber?.trim().toUpperCase() ===
+      activeNumber.trim().toUpperCase()
+      ? latestEvent.status
+      : shipment?.status;
+
+  const currentStepIndex = activeStatus
+    ? STATUS_STEPS.indexOf(activeStatus)
     : -1;
+
+  const displayedEvents = useMemo(() => {
+    if (!shipment?.events) return [];
+    const list = [...shipment.events];
+    if (
+      latestEvent &&
+      activeNumber &&
+      latestEvent.trackingNumber?.trim().toUpperCase() ===
+        activeNumber.trim().toUpperCase()
+    ) {
+      const exists = list.some((e) => e.status === latestEvent.status);
+      if (!exists) {
+        list.push({
+          id: `latest-${latestEvent.status}`,
+          shipmentId: latestEvent.shipmentId,
+          status: latestEvent.status,
+          description: latestEvent.description,
+          createdAt:
+            typeof latestEvent.timestamp === "string"
+              ? latestEvent.timestamp
+              : new Date().toISOString(),
+        });
+      }
+    }
+    return list;
+  }, [shipment?.events, latestEvent, activeNumber]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-8">
@@ -141,7 +175,7 @@ export default function TrackingPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <StatusBadge status={shipment.status} />
+                <StatusBadge status={activeStatus || shipment.status} />
               </div>
             </div>
 
@@ -246,21 +280,21 @@ export default function TrackingPage() {
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono text-muted-foreground">
-                  {shipment.events?.length || 0} Events Recorded
+                  {displayedEvents.length} Events Recorded
                 </span>
               </div>
 
               <div className="space-y-4">
-                {(!shipment.events || shipment.events.length === 0) ? (
+                {displayedEvents.length === 0 ? (
                   <div className="text-xs text-muted-foreground italic py-4 text-center">
                     Initial dispatch record created.
                   </div>
                 ) : (
-                  shipment.events.map((ev, i) => (
+                  displayedEvents.map((ev, i) => (
                     <div key={ev.id || i} className="flex gap-3 text-xs">
                       <div className="flex flex-col items-center">
                         <div className="size-2.5 rounded-full bg-primary mt-1" />
-                        {i < (shipment.events?.length || 0) - 1 && (
+                        {i < displayedEvents.length - 1 && (
                           <div className="w-0.5 flex-1 bg-border/60 my-1" />
                         )}
                       </div>
