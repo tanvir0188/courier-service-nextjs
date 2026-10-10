@@ -102,7 +102,7 @@ export const loginAction = async (
       path: "/",
     });
 
-    revalidateTag("my-profile");
+    revalidateTag("my-profile", "max");
 
     if (
       redirectTo &&
